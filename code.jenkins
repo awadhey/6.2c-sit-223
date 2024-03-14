@@ -1,0 +1,72 @@
+pipeline {
+    agent any
+    
+    stages {
+        stage('Build Stage') {
+            steps {
+                echo 'Building the application, using tools like Maven, Gradle, or NPM'
+                git branch: 'main', url: 'https://github.com/awadhey/SIT-313-task-4.1p.git'
+            }
+        }
+        stage('Test') {
+            steps {
+                echo 'Running the tests, using JUnit, NUnit'
+            }
+        }
+        stage('Code Analysis') {
+            steps {
+                echo 'Code analysis using tools like SonarQube.'
+            }
+        }
+        stage('Security Scan') {
+            steps {
+                echo 'Security checks are done here'
+            }
+        }
+        stage('Deploy to Staging') {
+            steps {
+                echo 'using tools like docker we can deply the webste to server'
+            }
+        }
+        stage('testing Integration') {
+            steps {
+                echo 'Selenium can used to run the integration tests at the staging level'
+            }
+        }
+        stage('Deploy for Production') {
+            steps {
+                echo 'This stage is the final stage for the deployment, and we can use various platforms for deployment like Netlify and AWS.'
+            }
+        }
+    }
+    
+    post {
+        success {
+            script {
+                sendEmailNotification('SUCCESSFUL BUILD')
+            }
+            echo 'Build succesfully'
+        }
+        failure {
+            script {
+                sendEmailNotification('BUILD FAILURE')
+            }
+            echo 'Build FAILED'
+        }
+    }
+}
+
+def sendEmailNotification(String status) {
+    def powershellCommand = """
+        \$SMTPServer = "smtp.gmail.com"
+        \$SMTPFrom = "awadhey4771.be22@chitkara.edu.in"
+        \$SMTPTo = "awadhey4771.be22@chitkara.edu.in"
+        \$SMTPSubject = "${status}"
+        \$SMTPBody = "Pipeline ${status}"
+        \$SMTPUsername = "awadhey4771.be22@chitkara.edu.in"
+        \$SMTPPassword = ""
+
+        Send-MailMessage -From \$SMTPFrom -to \$SMTPTo -Subject \$SMTPSubject -Body \$SMTPBody -SmtpServer \$SMTPServer -UseSsl -Port 587 -Credential (New-Object System.Management.Automation.PSCredential \$SMTPUsername, (ConvertTo-SecureString -AsPlainText \$SMTPPassword -Force))
+    """
+    powershell(powershellCommand)
+}
